@@ -4,13 +4,66 @@
     <title>Chatbot</title>
     <style>
         body {
+            margin: 0;
             font-family: Arial;
+            display: flex;
+            height: 100vh;
             background: #e5e5e5;
+        }
+
+        #sidebar {
+            width: 250px;
+            background: #202123;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        #newChatBtn {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #4a76a8;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #historyList {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 5px;
+            background: #2a2b32;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            background: #3a3b42;
+        }
+
+        .delete-btn {
+            background: red;
+            border: none;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #main {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
         }
 
         #container {
@@ -20,7 +73,6 @@
             display: flex;
             flex-direction: column;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
         #header {
@@ -28,43 +80,6 @@
             background: #4a76a8;
             color: white;
             text-align: center;
-            border-radius: 10px 10px 0 0;
-        }
-
-        #controls {
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-bottom: 1px solid #ddd;
-            min-height: 50px;
-        }
-
-        .controls-inner {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        button {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background: #4a76a8;
-            color: white;
-            opacity: 0.7;
-            transition: 0.2s;
-        }
-
-        button.active {
-            opacity: 1;
-            background: #2f5d8a;
-        }
-
-        select {
-            padding: 6px 12px;
-            border-radius: 5px;
         }
 
         #chatbox {
@@ -77,10 +92,9 @@
 
         .message {
             max-width: 70%;
-            padding: 8px 12px;
-            margin: 5px 0;
-            border-radius: 15px;
-            word-wrap: break-word;
+            padding: 8px;
+            margin: 5px;
+            border-radius: 10px;
         }
 
         .user {
@@ -92,7 +106,6 @@
         .bot {
             align-self: flex-start;
             background: #f1f0f0;
-            color: black;
         }
 
         #inputArea {
@@ -101,97 +114,110 @@
             border-top: 1px solid #ddd;
         }
 
-        #userInput {
+        input {
             flex: 1;
             padding: 10px;
-            border-radius: 20px;
-            border: 1px solid #ccc;
-            outline: none;
         }
 
-        #sendBtn {
+        button {
             margin-left: 5px;
-            padding: 10px 15px;
-            border-radius: 20px;
+            padding: 8px;
         }
     </style>
 </head>
 <body>
 
+<div id="sidebar">
+    <button id="newChatBtn" onclick="newChat()">+ New Chat</button>
+    <div id="historyList"></div>
+</div>
+
+<div id="main">
 <div id="container">
 
-    <div id="header">
-        AI Chatbot
-    </div>
-
-    <div id="controls">
-        <div id="controlsInner" class="controls-inner">
-            <button id="generalBtn" class="active" onclick="setMode('general')">
-                General Chatbot
-            </button>
-
-            <button id="roleBtn" onclick="setMode('role')">
-                Query Chatbot
-            </button>
-
-            <select id="roleSelect" onchange="handleRoleChange()">
-                <option value="hr">HR Assistant</option>
-                <option value="tech">Tech Assistant</option>
-                <option value="sales">Sales Assistant</option>
-            </select>
-        </div>
-    </div>
+    <div id="header">Customer Support Assistant</div>
 
     <div id="chatbox"></div>
 
     <div id="inputArea">
-        <input type="text" id="userInput" placeholder="Type a message..." />
-        <button id="sendBtn" onclick="sendMessage()">Send</button>
+        <input id="userInput" placeholder="Type..." />
+        <button onclick="sendMessage()">Send</button>
     </div>
 
 </div>
+</div>
 
 <script>
-let mode = "general";
+let currentChatId = null;
+let chats = JSON.parse(localStorage.getItem("chats") || "{}");
 
-document.getElementById("roleSelect").style.display = "none";
+function newChat() {
+    currentChatId = null;
+    clearChatUI();
+    resetBackend();
+}
 
-function setMode(selectedMode) {
-    if (mode !== selectedMode) {
-        mode = selectedMode;
+function saveChats() {
+    localStorage.setItem("chats", JSON.stringify(chats));
+}
 
-        const roleSelect = document.getElementById("roleSelect");
-        const generalBtn = document.getElementById("generalBtn");
-        const roleBtn = document.getElementById("roleBtn");
+function renderHistory() {
+    let list = document.getElementById("historyList");
+    list.innerHTML = "";
 
-        if (mode === "role") {
-            roleSelect.style.display = "inline-block";
-            roleBtn.classList.add("active");
-            generalBtn.classList.remove("active");
-        } else {
-            roleSelect.style.display = "none";
-            generalBtn.classList.add("active");
-            roleBtn.classList.remove("active");
-        }
+    Object.keys(chats).forEach(id => {
+        if (chats[id].length === 0) return;
 
-        clearChat();
-        resetBackendHistory();
+        let item = document.createElement("div");
+        item.className = "history-item";
+
+        let title = document.createElement("span");
+        title.innerText = chats[id][0].text;
+
+        let delBtn = document.createElement("button");
+        delBtn.innerText = "X";
+        delBtn.className = "delete-btn";
+
+        delBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteChat(id);
+        };
+
+        item.onclick = () => loadChat(id);
+
+        item.appendChild(title);
+        item.appendChild(delBtn);
+        list.appendChild(item);
+    });
+}
+
+function deleteChat(id) {
+    delete chats[id];
+    saveChats();
+    renderHistory();
+
+    if (currentChatId === id) {
+        newChat();
     }
 }
 
-function handleRoleChange() {
-    clearChat();
-    resetBackendHistory();
+function loadChat(id) {
+    currentChatId = id;
+    clearChatUI();
+
+    chats[id].forEach(msg => {
+        appendMessage(msg.text, msg.sender);
+    });
 }
 
 function appendMessage(text, sender) {
-    const chatbox = document.getElementById("chatbox");
+    let chatbox = document.getElementById("chatbox");
 
-    const msg = document.createElement("div");
-    msg.classList.add("message", sender);
-    msg.innerText = text;
+    let div = document.createElement("div");
+    div.className = "message " + sender;
+    div.innerText = text;
 
-    chatbox.appendChild(msg);
+    chatbox.appendChild(div);
     chatbox.scrollTop = chatbox.scrollHeight;
 }
 
@@ -199,41 +225,39 @@ async function sendMessage() {
     let input = document.getElementById("userInput");
     let message = input.value.trim();
 
-    if (message === "") {
-        alert("Enter a message");
-        return;
+    if (!message) return;
+
+    if (!currentChatId) {
+        currentChatId = Date.now().toString();
+        chats[currentChatId] = [];
     }
 
     appendMessage(message, "user");
+    chats[currentChatId].push({ sender: "user", text: message });
+
     input.value = "";
 
-    let role = document.getElementById("roleSelect").value;
-
-    let response = await fetch("http://localhost:8000/chat", {
+    let res = await fetch("http://localhost:8000/chat", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            message: message,
-            mode: mode,
-            role: role
-        })
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ message: message, mode: "smart" })
     });
 
-    let data = await response.json();
+    let data = await res.json();
 
     appendMessage(data.reply, "bot");
+    chats[currentChatId].push({ sender: "bot", text: data.reply });
+
+    saveChats();
+    renderHistory();
 }
 
-function clearChat() {
+function clearChatUI() {
     document.getElementById("chatbox").innerHTML = "";
 }
 
-async function resetBackendHistory() {
-    await fetch("http://localhost:8000/reset", {
-        method: "POST"
-    });
+async function resetBackend() {
+    await fetch("http://localhost:8000/reset", { method: "POST" });
 }
 
 document.getElementById("userInput")
@@ -242,6 +266,8 @@ document.getElementById("userInput")
             sendMessage();
         }
     });
+
+renderHistory();
 </script>
 
 </body>

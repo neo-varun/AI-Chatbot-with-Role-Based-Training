@@ -19,23 +19,38 @@ chat_history = []
 class ChatRequest(BaseModel):
     message: str
     mode: str
-    role: str | None = None
 
 
-def load_kb(role):
+def load_file(path):
     try:
-        if role == "hr":
-            with open("system_prompts/hr.txt", "r") as f:
-                return f.read()
-        elif role == "tech":
-            with open("system_prompts/tech.txt", "r") as f:
-                return f.read()
-        elif role == "sales":
-            with open("system_prompts/sales.txt", "r") as f:
-                return f.read()
+        with open(path, "r") as f:
+            return f.read()
     except:
         return ""
-    return ""
+
+
+SYSTEM_PROMPT = f"""
+You are an intelligent assistant.
+
+Step 1: Classify the user's query into one of:
+- HR
+- Tech
+- Sales
+
+Step 2: Use the appropriate knowledge below to answer.
+
+HR Knowledge:
+{load_file("system_prompts/hr.txt")}
+
+Tech Knowledge:
+{load_file("system_prompts/tech.txt")}
+
+Sales Knowledge:
+{load_file("system_prompts/sales.txt")}
+
+Step 3: Respond naturally.
+Do NOT mention the category explicitly.
+"""
 
 
 @app.post("/chat")
@@ -43,12 +58,7 @@ def chat_api(req: ChatRequest):
     global chat_history
 
     try:
-        messages = []
-
-        if req.mode == "role":
-            kb_text = load_kb(req.role)
-
-            messages.append({"role": "system", "content": kb_text})
+        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
         messages.extend(chat_history)
 
@@ -59,6 +69,7 @@ def chat_api(req: ChatRequest):
         reply = response.message.content
 
         chat_history.append({"role": "user", "content": req.message})
+
         chat_history.append({"role": "assistant", "content": reply})
 
         chat_history = chat_history[-20:]
