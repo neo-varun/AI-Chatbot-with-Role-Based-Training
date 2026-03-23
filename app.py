@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Dict, List
 from ollama import chat, ChatResponse
+from duckduckgo_search import DDGS
 
 app = FastAPI()
 
@@ -13,54 +15,73 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-chat_history = []
+chat_sessions: Dict[str, List] = {}
 
 
 class ChatRequest(BaseModel):
     message: str
     mode: str
+    chat_id: str
+    dev_prompt: str = ""
 
 
-def load_file(path):
+def search_web(query: str):
+    results_text = ""
+
     try:
-        with open(path, "r") as f:
-            return f.read()
+        with DDGS() as ddgs:
+            results = ddgs.text(query, max_results=5)
+
+            for r in results:
+                results_text += f"{r['title']}\n{r['body']}\n{r['href']}\n\n"
+
     except:
         return ""
 
-
-SYSTEM_PROMPT = f"""
-You are an intelligent assistant.
-
-Step 1: Classify the user's query into one of:
-- HR
-- Tech
-- Sales
-
-Step 2: Use the appropriate knowledge below to answer.
-
-HR Knowledge:
-{load_file("system_prompts/hr.txt")}
-
-Tech Knowledge:
-{load_file("system_prompts/tech.txt")}
-
-Sales Knowledge:
-{load_file("system_prompts/sales.txt")}
-
-Step 3: Respond naturally.
-Do NOT mention the category explicitly.
-"""
+    return results_text
 
 
 @app.post("/chat")
 def chat_api(req: ChatRequest):
-    global chat_history
-
     try:
-        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+        if req.chat_id not in chat_sessions:
+            chat_sessions[req.chat_id] = []
 
-        messages.extend(chat_history)
+        history = chat_sessions[req.chat_id]
+
+        messages = []
+
+        if req.mode == "company":
+            web_data = search_web(req.message)
+
+            system_content = """
+You are an AI assistant.
+
+You MUST answer ONLY using the provided web data below.
+
+Rules:
+- Do NOT say "I don't have real-time data"
+- Do NOT suggest checking other websites
+- Do NOT use your own knowledge
+- If web data is present, answer directly from it
+- If web data is missing, say: "No internet data found"
+
+Answer clearly and directly.
+"""
+
+            if req.dev_prompt:
+                system_content += f"\n\nDeveloper Instruction:\n{req.dev_prompt}"
+
+            if web_data:
+                system_content += f"\n\nWeb Data:\n{web_data}"
+            else:
+                system_content += (
+                    "\n\nNo web data found. Answer based on general knowledge."
+                )
+
+            messages.append({"role": "system", "content": system_content})
+
+        messages.extend(history)
 
         messages.append({"role": "user", "content": req.message})
 
@@ -68,11 +89,10 @@ def chat_api(req: ChatRequest):
 
         reply = response.message.content
 
-        chat_history.append({"role": "user", "content": req.message})
+        history.append({"role": "user", "content": req.message})
+        history.append({"role": "assistant", "content": reply})
 
-        chat_history.append({"role": "assistant", "content": reply})
-
-        chat_history = chat_history[-20:]
+        chat_sessions[req.chat_id] = history[-20:]
 
         return {"reply": reply}
 
@@ -81,7 +101,10 @@ def chat_api(req: ChatRequest):
 
 
 @app.post("/reset")
-def reset_chat():
-    global chat_history
-    chat_history = []
+def reset_chat(data: dict):
+    chat_id = data.get("chat_id")
+
+    if chat_id in chat_sessions:
+        chat_sessions[chat_id] = []
+
     return {"status": "cleared"}
