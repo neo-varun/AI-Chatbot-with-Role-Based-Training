@@ -1,269 +1,386 @@
+:root {
+  --bg: #f2f5f8;
+  --panel: #ffffff;
+  --border: #d9e1ea;
+  --text: #1c232b;
+  --muted: #6f7c8a;
+  --accent: #12253a;
+  --accent-soft: #e8eef6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: "Segoe UI", sans-serif;
-}
-
-/* THEMES */
-.app.light {
-  background: #f7f7f8;
-  color: black;
-}
-
-.app.dark {
-  background: #0f0f0f;
-  color: white;
+  font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at top right, #ecf4ff 0%, var(--bg) 45%);
 }
 
 .app {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
 }
 
-/* SIDEBAR */
 .sidebar {
-  width: 260px;
-  padding: 10px;
+  width: 270px;
+  padding: 16px;
+  border-right: 1px solid var(--border);
+  background: var(--panel);
   display: flex;
   flex-direction: column;
+  gap: 12px;
 }
 
-.app.light .sidebar {
-  background: white;
-  border-right: 1px solid #ddd;
-}
-
-.app.dark .sidebar {
-  background: #111;
-  border-right: 1px solid #222;
-}
-
-.newChat {
-  padding: 10px;
-  border-radius: 6px;
+.newChatBtn {
+  width: 100%;
+  min-height: 42px;
   border: none;
-  margin-bottom: 10px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
   cursor: pointer;
 }
 
-.app.light .newChat {
-  background: black;
-  color: white;
+.history {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
-.app.dark .newChat {
-  background: white;
-  color: black;
-}
-
-/* HISTORY */
 .historyItem {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   padding: 8px;
-  margin-bottom: 5px;
-  border-radius: 6px;
+  border-radius: 10px;
 }
 
-.app.light .historyItem {
-  background: #f1f1f1;
+.historyItem:hover {
+  background: #f6f9fc;
 }
 
-.app.dark .historyItem {
-  background: #1a1a1a;
+.historyItem span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #304055;
 }
 
-/* MAIN */
+.historyItem button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
-/* TOPBAR */
 .topbar {
+  height: 64px;
   display: flex;
-  justify-content: flex-end;
-  gap: 15px;
-  padding: 15px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(4px);
 }
 
-/* TOGGLE */
-.toggleSwitch {
-  width: 70px;
+.title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.topRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.devBtn {
   height: 36px;
-  border-radius: 50px;
-  background: linear-gradient(135deg, #6ee7b7, #3b82f6);
-  position: relative;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 9px;
+  padding: 0 12px;
+  font-weight: 600;
   cursor: pointer;
 }
 
-.toggleCircle {
-  width: 30px;
-  height: 30px;
-  background: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 3px;
-  left: 4px;
-  transition: 0.4s;
-}
-
-.toggleSwitch.active .toggleCircle {
-  transform: translateX(34px);
-}
-
-/* DEV PROMPT */
-.devPromptBox {
-  padding: 10px 20px;
-}
-
-.devPromptBox input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.app.dark .devPromptBox input {
-  background: #111;
-  color: white;
-  border: 1px solid #333;
-}
-
-/* CHAT */
 .chat {
   flex: 1;
   overflow-y: auto;
-  padding: 30px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .row {
   display: flex;
-  margin-bottom: 15px;
+  width: 100%;
 }
 
 .row.user {
   justify-content: flex-end;
 }
 
-.row.bot {
-  justify-content: flex-start;
+.messageStack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: min(70%, 720px);
 }
 
 .bubble {
-  max-width: 700px;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 11px 13px;
+  border-radius: 14px;
+  line-height: 1.45;
+  background: #fff;
+  border: 1px solid #e5ebf2;
+  white-space: pre-wrap;
 }
 
-.app.light .row.user .bubble {
-  background: black;
-  color: white;
+.attachmentBubble {
+  display: flex;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: 6px;
+  border: 1px solid #dfe8f2;
+  background: #f4f8fc;
+  width: fit-content;
 }
 
-.app.dark .row.user .bubble {
-  background: white;
-  color: black;
+.attachmentBubbleName {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: #41576f;
 }
 
-.app.light .row.bot .bubble {
-  background: #e5e5e5;
+.row.user .bubble {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 
-.app.dark .row.bot .bubble {
-  background: #222;
-  color: white;
+.row.user .attachmentBubble {
+  border-color: #2f4f70;
+  background: #23405e;
 }
 
-/* INPUT */
+.row.user .attachmentBubbleName {
+  color: #fff;
+}
+
 .inputBox {
   display: flex;
-  padding: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: #fff;
 }
 
-.app.light .inputBox {
-  background: white;
-  border-top: 1px solid #ddd;
+.attachmentChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 6px 8px 6px 10px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  border: 1px solid #d6e2f0;
 }
 
-.app.dark .inputBox {
-  background: #111;
-  border-top: 1px solid #222;
+.attachmentName {
+  max-width: 260px;
+  font-size: 13px;
+  color: #27384d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-input {
+.removeAttachmentBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: #d5e0ed;
+  color: #27405f;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.inputBox input {
   flex: 1;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
+  min-height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+}
+
+.inputBox input:focus {
   outline: none;
+  border-color: #96b2cf;
 }
 
-button {
-  margin-left: 10px;
-  padding: 12px;
+.attachBtn,
+.sendBtn {
+  width: 40px;
+  height: 40px;
   border: none;
-  border-radius: 8px;
-  background: black;
-  color: white;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
   cursor: pointer;
 }
 
-.promptBtn {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 6px;
+.attachBtn:disabled,
+.sendBtn:disabled,
+.inputBox input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toggleSwitch {
+  width: 52px;
+  height: 28px;
+  border-radius: 999px;
+  padding: 3px;
+  background: #bfc7d2;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
-.app.light .promptBtn {
-  background: black;
-  color: white;
+.toggleSwitch.active {
+  background: var(--accent);
 }
 
-.app.dark .promptBtn {
-  background: white;
-  color: black;
+.toggleCircle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s ease;
 }
 
-/* MODAL */
+.toggleSwitch.active .toggleCircle {
+  transform: translateX(24px);
+}
+
 .modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
+  inset: 0;
+  background: rgba(8, 17, 29, 0.45);
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 16px;
 }
 
 .modalContent {
-  width: 400px;
-  padding: 20px;
-  border-radius: 10px;
+  width: min(520px, 100%);
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 14px 36px rgba(16, 32, 54, 0.16);
 }
 
-.app.light .modalContent {
-  background: white;
+.modalContent h3 {
+  margin: 0 0 10px;
 }
 
-.app.dark .modalContent {
-  background: #1a1a1a;
-  color: white;
-}
-
-textarea {
+.modalContent textarea {
   width: 100%;
-  height: 120px;
-  margin-top: 10px;
+  min-height: 160px;
   padding: 10px;
-  border-radius: 6px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  resize: vertical;
+  font: inherit;
 }
 
 .modalActions {
-  margin-top: 10px;
+  margin-top: 12px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modalActions button {
+  min-height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 225px;
+  }
+
+  .bubble {
+    max-width: 82%;
+  }
+
+  .attachmentName {
+    max-width: 180px;
+  }
+}
+
+@media (max-width: 760px) {
+  .app {
+    flex-direction: column;
+    max-height: none;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .history {
+    max-height: 140px;
+  }
+
+  .topbar {
+    padding: 0 12px;
+  }
+
+  .chat {
+    padding: 14px 12px;
+  }
+
+  .inputBox {
+    padding: 10px 12px;
+  }
+
+  .bubble {
+    max-width: 90%;
+  }
 }

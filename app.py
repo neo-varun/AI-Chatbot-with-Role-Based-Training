@@ -1,9 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, List
 from ollama import chat, ChatResponse
 from duckduckgo_search import DDGS
+import pdfplumber
+from docx import Document
 
 app = FastAPI()
 
@@ -32,13 +34,28 @@ def search_web(query: str):
         with DDGS() as ddgs:
             results = ddgs.text(query, max_results=5)
 
-            for r in results:
-                results_text += f"{r['title']}\n{r['body']}\n{r['href']}\n\n"
+            for i, r in enumerate(results, 1):
+                results_text += (
+                    f"{i}. {r['title']}\n{r['body']}\nSource: {r['href']}\n\n"
+                )
 
     except:
         return ""
 
     return results_text
+
+
+def extract_text_from_pdf(file):
+    text = ""
+    with pdfplumber.open(file.file) as pdf:
+        for page in pdf.pages:
+            text += page.extract_text() or ""
+    return text
+
+
+def extract_text_from_docx(file):
+    doc = Document(file.file)
+    return "\n".join([p.text for p in doc.paragraphs])
 
 
 @app.post("/chat")
@@ -52,32 +69,17 @@ def chat_api(req: ChatRequest):
         messages = []
 
         if req.mode == "company":
-            web_data = search_web(req.message)
-
-            system_content = """
-You are an AI assistant.
-
-You MUST answer ONLY using the provided web data below.
-
-Rules:
-- Do NOT say "I don't have real-time data"
-- Do NOT suggest checking other websites
-- Do NOT use your own knowledge
-- If web data is present, answer directly from it
-- If web data is missing, say: "No internet data found"
-
-Answer clearly and directly.
-"""
+            system_content = ""
 
             if req.dev_prompt:
-                system_content += f"\n\nDeveloper Instruction:\n{req.dev_prompt}"
+                system_content += req.dev_prompt
+
+            web_data = search_web(req.message)
 
             if web_data:
                 system_content += f"\n\nWeb Data:\n{web_data}"
             else:
-                system_content += (
-                    "\n\nNo web data found. Answer based on general knowledge."
-                )
+                system_content += "\n\nNo web data found."
 
             messages.append({"role": "system", "content": system_content})
 
@@ -98,6 +100,39 @@ Answer clearly and directly.
 
     except Exception as e:
         return {"reply": str(e)}
+
+
+@app.post("/analyze-resume")
+async def analyze_resume(
+    file: UploadFile = File(...), dev_prompt: str = "", user_prompt: str = ""
+):
+    try:
+        if file.filename.endswith(".pdf"):
+            text = extract_text_from_pdf(file)
+        elif file.filename.endswith(".docx"):
+            text = extract_text_from_docx(file)
+        else:
+            return {"result": "Unsupported file format"}
+
+        messages = []
+
+        system_content = dev_prompt if dev_prompt else ""
+
+        messages.append({"role": "system", "content": system_content})
+
+        user_content = f"Analyze this resume:\n\n{text}"
+
+        if user_prompt.strip():
+            user_content = f"{user_prompt.strip()}\n\nResume:\n{text}"
+
+        messages.append({"role": "user", "content": user_content})
+
+        response: ChatResponse = chat(model="llama3.1:8b", messages=messages)
+
+        return {"result": response.message.content}
+
+    except Exception as e:
+        return {"result": str(e)}
 
 
 @app.post("/reset")
