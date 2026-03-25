@@ -83,6 +83,24 @@ def chat_api(req: ChatRequest):
 
             messages.append({"role": "system", "content": system_content})
 
+        elif req.mode == "interview":
+            base_prompt = (
+                "You are an AI interview assistant. "
+                "Support two actions based on user input:\n"
+                "1) Generate one interview question when asked for a question.\n"
+                "2) Evaluate a candidate answer when asked for evaluation.\n\n"
+                "For question generation: return only one clear interview question text, no extra labels.\n"
+                "For evaluation: follow the output format requested by the user prompt exactly. "
+                "If JSON is requested, return valid JSON only."
+            )
+
+            system_content = base_prompt
+
+            if req.dev_prompt:
+                system_content += f"\n\nAdditional instructions:\n{req.dev_prompt}"
+
+            messages.append({"role": "system", "content": system_content})
+
         messages.extend(history)
 
         messages.append({"role": "user", "content": req.message})
