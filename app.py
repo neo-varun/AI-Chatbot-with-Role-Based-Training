@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Dict, List
+from typing import Dict, List, Optional
 from ollama import chat, ChatResponse
 from duckduckgo_search import DDGS
 import pdfplumber
@@ -22,8 +22,10 @@ chat_sessions: Dict[str, List] = {}
 
 class ChatRequest(BaseModel):
     message: str
-    mode: str
+    mode: str = "general"
     chat_id: str
+    role: Optional[str] = None
+    financial_data: Optional[dict] = None
     dev_prompt: str = ""
 
 
@@ -95,6 +97,26 @@ def chat_api(req: ChatRequest):
             )
 
             system_content = base_prompt
+
+            if req.dev_prompt:
+                system_content += f"\n\nAdditional instructions:\n{req.dev_prompt}"
+
+            messages.append({"role": "system", "content": system_content})
+
+        elif req.role == "finance" or req.mode == "finance":
+            financial_context = req.financial_data or {}
+            base_prompt = (
+                "You are a personal finance AI assistant. "
+                "Always produce practical, safe, and realistic money advice. "
+                "Respond in valid JSON only with keys: analysis (string), issues (array of strings), "
+                "suggestions (array of strings), action_plan (array of strings)."
+            )
+
+            system_content = (
+                f"{base_prompt}\n\n"
+                f"Financial Snapshot: {financial_context}\n"
+                "When data is incomplete, acknowledge assumptions and keep action_plan actionable."
+            )
 
             if req.dev_prompt:
                 system_content += f"\n\nAdditional instructions:\n{req.dev_prompt}"

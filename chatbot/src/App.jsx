@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./App.css";
+import FinanceAdvisorPage from "./pages/FinanceAdvisorPage";
 
 const modeCards = [
   {
@@ -29,6 +30,16 @@ const modeCards = [
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M4 4h10a2 2 0 0 1 2 2v3h4a2 2 0 0 1 2 2v7h-2v-7h-4v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm1 2v12h9V6H5Zm2 2h5v2H7V8Zm0 4h5v2H7v-2Z" />
+      </svg>
+    ),
+  },
+  {
+    key: "finance",
+    title: "Finance AI",
+    subtitle: "Plan budgets, track goals, and get structured financial advice.",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm0 2v14h16V5H4Zm2 9h2a3 3 0 0 0 6 0v-1a3 3 0 1 0-6 0v1Zm2 0v-1a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0Zm8-6h2v2h-2V8Z" />
       </svg>
     ),
   },
@@ -900,6 +911,10 @@ function App() {
 
   if (mode === "interview") {
     return <InterviewAssistant onExit={() => setMode(null)} />;
+  }
+
+  if (mode === "finance") {
+    return <FinanceAdvisorPage onExit={() => setMode(null)} />;
   }
 
   return (
