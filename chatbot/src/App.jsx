@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import FinanceAdvisorPage from "./pages/FinanceAdvisorPage";
+import Workflow from "./pages/Workflow";
 
 const modeCards = [
   {
@@ -40,6 +41,16 @@ const modeCards = [
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm0 2v14h16V5H4Zm2 9h2a3 3 0 0 0 6 0v-1a3 3 0 1 0-6 0v1Zm2 0v-1a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0Zm8-6h2v2h-2V8Z" />
+      </svg>
+    ),
+  },
+  {
+    key: "workflow",
+    title: "Workflow AI",
+    subtitle: "Automate summaries, emails, rewrites, and to-do generation.",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 3h14a2 2 0 0 1 2 2v3h-2V5H5v14h5v2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 7h8v2h-8v-2Zm0 4h8v2h-8v-2Zm0 4h8v2h-8v-2Zm-2-7.5 1.4 1.4-3.9 3.9-2.4-2.4 1.4-1.4 1 1 2.5-2.5Z" />
       </svg>
     ),
   },
@@ -915,6 +926,10 @@ function App() {
 
   if (mode === "finance") {
     return <FinanceAdvisorPage onExit={() => setMode(null)} />;
+  }
+
+  if (mode === "workflow") {
+    return <Workflow onExit={() => setMode(null)} />;
   }
 
   return (

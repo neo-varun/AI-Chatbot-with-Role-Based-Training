@@ -6,6 +6,7 @@ from ollama import chat, ChatResponse
 from duckduckgo_search import DDGS
 import pdfplumber
 from docx import Document
+import uuid
 
 app = FastAPI()
 
@@ -23,8 +24,9 @@ chat_sessions: Dict[str, List] = {}
 class ChatRequest(BaseModel):
     message: str
     mode: str = "general"
-    chat_id: str
+    chat_id: Optional[str] = None
     role: Optional[str] = None
+    task_type: Optional[str] = None
     financial_data: Optional[dict] = None
     dev_prompt: str = ""
 
@@ -63,10 +65,12 @@ def extract_text_from_docx(file):
 @app.post("/chat")
 def chat_api(req: ChatRequest):
     try:
-        if req.chat_id not in chat_sessions:
-            chat_sessions[req.chat_id] = []
+        chat_id = req.chat_id or f"workflow-{uuid.uuid4().hex}"
 
-        history = chat_sessions[req.chat_id]
+        if chat_id not in chat_sessions:
+            chat_sessions[chat_id] = []
+
+        history = chat_sessions[chat_id]
 
         messages = []
 
@@ -134,9 +138,9 @@ def chat_api(req: ChatRequest):
         history.append({"role": "user", "content": req.message})
         history.append({"role": "assistant", "content": reply})
 
-        chat_sessions[req.chat_id] = history[-20:]
+        chat_sessions[chat_id] = history[-20:]
 
-        return {"reply": reply}
+        return {"reply": reply, "chat_id": chat_id}
 
     except Exception as e:
         return {"reply": str(e)}
