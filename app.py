@@ -28,6 +28,7 @@ class ChatRequest(BaseModel):
     role: Optional[str] = None
     task_type: Optional[str] = None
     financial_data: Optional[dict] = None
+    travel_data: Optional[dict] = None
     dev_prompt: str = ""
 
 
@@ -60,6 +61,65 @@ def extract_text_from_pdf(file):
 def extract_text_from_docx(file):
     doc = Document(file.file)
     return "\n".join([p.text for p in doc.paragraphs])
+
+
+def handle_travel(req: ChatRequest):
+    """
+    Handler for travel assistant role.
+    Combines user message with travel data and system prompt.
+    """
+    travel_context = req.travel_data or {}
+
+    system_prompt = """You are a smart AI travel assistant.
+
+Your job is to help users plan trips based on:
+- budget
+- number of days
+- destination
+- interests (adventure, food, culture, etc.)
+
+Always respond in the following structured format:
+
+Destination Overview:
+(short description)
+
+Day-wise Itinerary:
+Day 1:
+- activities
+
+Day 2:
+- activities
+
+(and so on)
+
+Estimated Budget Breakdown:
+- Travel:
+- Stay:
+- Food:
+- Activities:
+- Total:
+
+Suggestions:
+- tips
+- best time to visit
+- travel advice
+
+Keep responses clear, practical, and realistic."""
+
+    # Build context from travel data
+    context_parts = [
+        f"Budget: ₹{travel_context.get('budget', 'Not specified')}",
+        f"Days: {travel_context.get('days', 'Not specified')}",
+        f"Location: {travel_context.get('location', 'Not specified')}",
+        f"Interests: {travel_context.get('interests', 'Not specified')}",
+    ]
+
+    travel_context_str = "\n".join(context_parts)
+
+    # Combine into full system message
+    full_system = f"{system_prompt}\n\nTrip Details:\n{travel_context_str}"
+
+    return full_system
 
 
 @app.post("/chat")
@@ -121,6 +181,14 @@ def chat_api(req: ChatRequest):
                 f"Financial Snapshot: {financial_context}\n"
                 "When data is incomplete, acknowledge assumptions and keep action_plan actionable."
             )
+
+            if req.dev_prompt:
+                system_content += f"\n\nAdditional instructions:\n{req.dev_prompt}"
+
+            messages.append({"role": "system", "content": system_content})
+
+        elif req.role == "travel":
+            system_content = handle_travel(req)
 
             if req.dev_prompt:
                 system_content += f"\n\nAdditional instructions:\n{req.dev_prompt}"

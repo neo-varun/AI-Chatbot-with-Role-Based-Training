@@ -1153,3 +1153,398 @@ body {
     max-height: 52vh;
   }
 }
+
+/* Travel Page Styles */
+
+.travelPage {
+  min-height: 100vh;
+  background: #f9fbfd;
+  padding: 18px;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 14px;
+}
+
+.travelTopbar {
+  background: #fff;
+  border: 1px solid #dfe8f1;
+  border-radius: 16px;
+  min-height: 66px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 10px 24px rgba(22, 44, 68, 0.08);
+}
+
+.travelTopbar h2 {
+  margin: 0;
+  font-size: clamp(22px, 2.2vw, 30px);
+  color: #203a54;
+}
+
+.travelFormCard {
+  background: #fff;
+  border: 1px solid #dfe8f1;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 12px 26px rgba(18, 36, 56, 0.06);
+}
+
+.travelFormCard h3 {
+  margin: 0 0 12px;
+  color: #223b55;
+}
+
+.travelFormGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.travelFormGrid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #304a63;
+}
+
+.travelFormGrid input {
+  min-height: 40px;
+  border: 1px solid #d3dfeb;
+  border-radius: 10px;
+  padding: 0 10px;
+  font: inherit;
+  color: #1f354d;
+  background: #fff;
+}
+
+.travelFormGrid input:focus {
+  outline: none;
+  border-color: #1e5a96;
+  box-shadow: 0 0 0 3px rgba(30, 90, 150, 0.1);
+}
+
+.errorMessage {
+  color: #a53b3b;
+  font-size: 13px;
+  margin: 8px 0;
+}
+
+.travelFormActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.primaryBtn,
+.ghostBtn,
+.switchModeBtn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.primaryBtn {
+  background: #1e5a96;
+  color: #fff;
+}
+
+.primaryBtn:hover:not(:disabled) {
+  background: #143d6e;
+}
+
+.primaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ghostBtn {
+  background: #ecf3fa;
+  color: #254260;
+  border: 1px solid #d3dfeb;
+}
+
+.ghostBtn:hover:not(:disabled) {
+  background: #dfe8f1;
+}
+
+.switchModeBtn {
+  background: #ecf3fa;
+  color: #254260;
+  border: 1px solid #d3dfeb;
+}
+
+.switchModeBtn:hover {
+  background: #dfe8f1;
+}
+
+.chatContainer {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 10px;
+  min-height: 0;
+}
+
+.chatBody {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #dfe8f1;
+  border-radius: 16px;
+  box-shadow: 0 12px 26px rgba(18, 36, 56, 0.06);
+}
+
+.emptyState {
+  margin: auto;
+  padding: 40px;
+  text-align: center;
+  color: #6f7c8a;
+}
+
+.messageRow {
+  display: flex;
+  gap: 8px;
+}
+
+.messageRow.user {
+  justify-content: flex-end;
+}
+
+.messageRow.bot {
+  justify-content: flex-start;
+}
+
+.messageStack {
+  max-width: min(78%, 900px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bubble {
+  background: #f0f5fa;
+  border: 1px solid #dce7f2;
+  border-radius: 14px;
+  padding: 12px;
+  color: #1f354d;
+  line-height: 1.5;
+}
+
+.messageRow.user .bubble {
+  background: #1e5a96;
+  color: #fff;
+  border-color: #1e5a96;
+}
+
+.structuredResponse {
+  display: grid;
+  gap: 10px;
+}
+
+.responseSection {
+  background: #fbfdff;
+  border: 1px solid #dce7f2;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.responseSection h4 {
+  margin: 0 0 8px;
+  color: #1e5a96;
+  font-size: 14px;
+}
+
+.responseSection p {
+  margin: 0;
+  color: #36516d;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.responseSection ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #36516d;
+}
+
+.responseSection li {
+  margin: 4px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.dayPlan {
+  background: #fbfdff;
+  border-left: 4px solid #1e5a96;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+}
+
+.dayHeader {
+  font-weight: 700;
+  color: #1e5a96;
+  font-size: 15px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2ebf4;
+}
+
+.dayPeriods {
+  display: grid;
+  gap: 8px;
+}
+
+.periodBlock {
+  background: #fff;
+  border: 1px solid #dce7f2;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.periodTitle {
+  font-weight: 600;
+  color: #254260;
+  font-size: 13px;
+  margin-bottom: 6px;
+  text-transform: capitalize;
+}
+
+.periodItems {
+  margin: 0;
+  padding-left: 18px;
+  list-style: none;
+}
+
+.periodItems li {
+  margin: 4px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #36516d;
+  position: relative;
+  padding-left: 8px;
+}
+
+.periodItems li:before {
+  content: "▪";
+  position: absolute;
+  left: 0;
+  color: #1e5a96;
+}
+
+.dayActivities {
+  margin: 0;
+  padding-left: 18px;
+  list-style: none;
+}
+
+.dayActivities li {
+  margin: 4px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #36516d;
+  position: relative;
+  padding-left: 8px;
+}
+
+.dayActivities li:before {
+  content: "▪";
+  position: absolute;
+  left: 0;
+  color: #1e5a96;
+}
+
+.dayPlan strong {
+  color: #1e5a96;
+}
+
+.loadingMessage {
+  text-align: center;
+  color: #6f7c8a;
+  padding: 20px;
+  font-style: italic;
+}
+
+.followUpSection {
+  background: #fff;
+  border: 1px solid #dfe8f1;
+  border-radius: 16px;
+  padding: 10px;
+  box-shadow: 0 12px 26px rgba(18, 36, 56, 0.06);
+}
+
+.followUpHint {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #6f7c8a;
+}
+
+.inputBox {
+  display: grid;
+  grid-template-columns: 1fr 50px;
+  gap: 8px;
+  align-items: center;
+}
+
+.inputBox input {
+  min-height: 40px;
+  border: 1px solid #d3dfeb;
+  border-radius: 10px;
+  padding: 0 12px;
+  font: inherit;
+  color: #1f354d;
+  background: #fff;
+}
+
+.inputBox input:focus {
+  outline: none;
+  border-color: #1e5a96;
+  box-shadow: 0 0 0 3px rgba(30, 90, 150, 0.1);
+}
+
+.sendBtn {
+  min-height: 40px;
+  background: #1e5a96;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.sendBtn:hover:not(:disabled) {
+  background: #143d6e;
+}
+
+.sendBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1200px) {
+  .travelFormGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .travelFormGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .chatBody {
+    max-height: 60vh;
+  }
+}
