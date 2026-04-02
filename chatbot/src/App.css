@@ -132,6 +132,10 @@ body {
   background: linear-gradient(155deg, #ffffff 0%, #edf6f4 100%);
 }
 
+.modeCard.health {
+  background: linear-gradient(155deg, #ffffff 0%, #ebf8f1 100%);
+}
+
 .modeCard:hover {
   transform: scale(1.02);
   box-shadow: 0 18px 38px rgba(23, 43, 65, 0.16);

@@ -3,6 +3,7 @@ import "./App.css";
 import FinanceAdvisorPage from "./pages/FinanceAdvisorPage";
 import Workflow from "./pages/Workflow";
 import Travel from "./pages/Travel";
+import Health from "./pages/Health";
 
 const modeCards = [
   {
@@ -62,6 +63,16 @@ const modeCards = [
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
+      </svg>
+    ),
+  },
+  {
+    key: "health",
+    title: "Health AI",
+    subtitle: "Get structured workout and diet plans based on your profile.",
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5A4.5 4.5 0 0 1 6.5 4c1.74 0 3.41.81 4.5 2.09A6 6 0 0 1 15 4c3.31 0 6 2.69 6 6 0 4.75-3.55 8.25-9 11.35ZM8 11h2V9h2v2h2v2h-2v2h-2v-2H8v-2Z" />
       </svg>
     ),
   },
@@ -695,7 +706,13 @@ function InterviewAssistant({ onExit }) {
 }
 
 function App() {
-  const [mode, setMode] = useState(null);
+  const getModeFromPath = () => {
+    const path = window.location.pathname.toLowerCase();
+    if (path === "/health") return "health";
+    return null;
+  };
+
+  const [mode, setMode] = useState(() => getModeFromPath());
   const [devPrompt, setDevPrompt] = useState(
     localStorage.getItem("devPrompt") || "",
   );
@@ -769,6 +786,25 @@ function App() {
     setCurrentChatId(null);
     setMessages([]);
     setAttachedFile(null);
+  }, [mode]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setMode(getModeFromPath());
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  useEffect(() => {
+    const currentPath = window.location.pathname;
+
+    if (mode === "health" && currentPath !== "/health") {
+      window.history.pushState({}, "", "/health");
+    } else if (mode !== "health" && currentPath !== "/") {
+      window.history.pushState({}, "", "/");
+    }
   }, [mode]);
 
   const updateChatMessages = (chatId, updater) => {
@@ -945,6 +981,10 @@ function App() {
 
   if (mode === "travel") {
     return <Travel onExit={() => setMode(null)} />;
+  }
+
+  if (mode === "health") {
+    return <Health onExit={() => setMode(null)} />;
   }
 
   return (
